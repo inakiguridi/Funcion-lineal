@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Función lineal — práctica completa</title>
+<style>
+:root{
+  --bg:#f5f7fa;--card:#fff;--ink:#1f2937;--muted:#667085;--line:#d0d5dd;
+  --accent:#2563eb;--accent2:#eff6ff;--ok:#137333;--bad:#b42318;--teacher:#7c3aed;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:1080px;margin:auto;padding:24px}
+header{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:29px}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:16px;margin:14px 0 8px}
+p{line-height:1.5}
+.small{font-size:14px;color:var(--muted)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}
+button{font:inherit;font-weight:650;padding:10px 14px;border-radius:9px;border:1px solid var(--line);background:white;cursor:pointer}
+button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.teacher-btn{background:var(--teacher);color:#fff;border-color:var(--teacher)}
+button:focus,input:focus{outline:3px solid #bfdbfe;outline-offset:1px}
+.progress{margin-left:auto;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:19px;margin:15px 0}
+.qhead{display:flex;gap:12px;justify-content:space-between;align-items:start}
+.badge{white-space:nowrap;background:var(--accent2);color:#1d4ed8;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
+.problem-badge{background:#fef3c7;color:#92400e}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f2f4f7;padding:2px 6px;border-radius:5px}
+.grid2{display:grid;grid-template-columns:minmax(300px,1.15fr) minmax(250px,.85fr);gap:20px;align-items:start}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:block}
+input[type=text]{width:100%;margin-top:5px;padding:10px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.choice{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);border-radius:9px;margin:7px 0;cursor:pointer}
+.choice input{margin-top:3px}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+.mini canvas{max-height:260px}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;margin:10px 0}
+th,td{border:1px solid var(--line);padding:9px;text-align:center}
+th{background:#f9fafb}
+.feedback{min-height:24px;margin:10px 0 0;font-weight:650}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.explain{font-weight:400;color:var(--muted);margin-top:4px}
+.check{margin-top:11px}
+.summary{display:none;background:#fff;border:2px solid var(--accent);border-radius:14px;padding:18px;margin-top:20px}
+.summary.show{display:block}
+#secretBtn{
+  position:absolute;right:7px;bottom:5px;width:18px;height:18px;padding:0;border:0;background:transparent;
+  opacity:.08;font-size:13px;line-height:18px;color:#111;cursor:pointer
+}
+#secretBtn:hover{opacity:.35}
+.teacher-panel{display:none;border:2px solid var(--teacher);background:#faf7ff}
+.teacher-panel.show{display:block}
+.teacher-panel .badge{background:#ede9fe;color:#6d28d9}
+.bank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bank-item{border:1px solid #ddd6fe;background:#fff;border-radius:10px;padding:12px}
+.bank-item h3{margin-top:0}
+.context-list{columns:2;column-gap:26px;margin:8px 0;padding-left:20px}
+.context-list li{break-inside:avoid;margin-bottom:5px}
+.teacher-note{padding:10px 12px;border-left:4px solid var(--teacher);background:#f5f3ff;border-radius:6px}
+@media(max-width:800px){
+  .grid2,.grid4,.row,.row3,.bank-grid{grid-template-columns:1fr}
+  .progress{width:100%;margin-left:0}
+  .context-list{columns:1}
+}
+@media print{
+  body{background:#fff}main{max-width:none;padding:0}header,.card{border-color:#bbb;break-inside:avoid}
+  .toolbar,.check,.summary,#secretBtn,.teacher-panel{display:none!important}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Función lineal — práctica completa</h1>
+  <p class="small">8.º básico / Sekundarstufe I · 12 preguntas · cada nueva prueba conserva la cobertura, pero cambia los ejercicios.</p>
+  <p>Trabaja con <span class="formula">y = mx + n</span>. <b>m</b> es la pendiente y <b>n</b> es el <b>coeficiente de posición</b>. Puedes escribir decimales con punto o coma y fracciones como <span class="formula">3/2</span>.</p>
+  <div class="toolbar">
+    <button class="primary" id="newTest">Nueva prueba</button>
+    <button id="gradeAll">Corregir todo</button>
+    <button id="printBtn">Imprimir</button>
+    <span class="progress" id="progress">Puntaje: 0 / 12</span>
+  </div>
+  <button id="secretBtn" title="">π</button>
+</header>
+
+<section class="card teacher-panel" id="teacherPanel">
+  <div class="qhead"><h2>Banco docente completo</h2><span class="badge">modo docente</span></div>
+  <p class="teacher-note">Este panel muestra <b>todas las familias de ejercicios y todos los contextos</b> que puede utilizar el generador. Los valores numéricos cambian, por lo que cada familia puede producir muchas versiones distintas.</p>
+  <div id="bankContent"></div>
+  <div class="toolbar">
+    <button class="teacher-btn" id="bankRefresh">Regenerar ejemplos del banco</button>
+    <button id="closeBank">Ocultar banco</button>
+  </div>
+</section>
+
+<div id="questions"></div>
+
+<section class="summary" id="summary">
+  <h2>Resultado</h2>
+  <p id="summaryText"></p>
+  <p class="small">Puedes corregir nuevamente después de cambiar tus respuestas o generar una prueba completamente nueva.</p>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const qs=id=>document.getElementById(id);
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const near=(a,b,t=1e-7)=>Number.isFinite(a)&&Math.abs(a-b)<t;
+const nonZero=a=>pick(a.filter(x=>x!==0));
+
+function fmt(n){
+  if(near(n,Math.round(n))) return String(Math.round(n));
+  return String(Math.round(n*100)/100).replace(".",",");
+}
+function parseNum(v){
+  v=String(v??"").trim().replace(",",".");
+  if(!v)return NaN;
+  if(v.includes("/")){
+    const p=v.split("/");
+    if(p.length!==2)return NaN;
+    const a=Number(p[0]),b=Number(p[1]);
+    return Number.isFinite(a)&&Number.isFinite(b)&&b!==0?a/b:NaN;
+  }
+  return Number(v);
+}
+function eqText(m,n){
+  if(near(m,0))return `y = ${fmt(n)}`;
+  let s="y = ";
+  if(near(m,1))s+="x";
+  else if(near(m,-1))s+="-x";
+  else s+=`${fmt(m)}x`;
+  if(n>0)s+=` + ${fmt(n)}`;
+  if(n<0)s+=` - ${fmt(Math.abs(n))}`;
+  return s;
+}
+function fnText(name,m,n){
+  let rhs=eqText(m,n).replace("y = ","");
+  return `${name}(x) = ${rhs}`;
+}
+function signed(n){return n>=0?`+ ${fmt(n)}`:`- ${fmt(Math.abs(n))}`}
+function input(id,label,ph=""){return `<label>${label}<input type="text" id="${id}" autocomplete="off" placeholder="${ph}"></label>`}
+function radioGroup(name,opts){return opts.map((o,i)=>`<label class="choice"><input type="radio" name="${name}" value="${i}"><span>${o}</span></label>`).join("")}
+function feedback(id){return `<div class="feedback" id="${id}"></div>`}
+function setFeedback(id,ok,explain){
+  const e=qs(id);e.className=`feedback ${ok?"ok":"bad"}`;
+  e.innerHTML=`${ok?"Correcto.":"Revisa tu respuesta."}<div class="explain">${explain}</div>`;
+}
+function checked(name){
+  const e=document.querySelector(`input[name="${name}"]:checked`);
+  return e?Number(e.value):NaN;
+}
+
+let test=[];
+const solved=Array(12).fill(false);
+
+function drawPlane(canvas,m,n,points=[],opts={}){
+  const c=canvas.getContext("2d"),W=canvas.width,H=canvas.height,p=34;
+  const xmin=opts.xmin??-6,xmax=opts.xmax??6,ymin=opts.ymin??-6,ymax=opts.ymax??6;
+  const X=x=>p+(x-xmin)*(W-2*p)/(xmax-xmin);
+  const Y=y=>H-p-(y-ymin)*(H-2*p)/(ymax-ymin);
+  c.clearRect(0,0,W,H);c.fillStyle="#fff";c.fillRect(0,0,W,H);
+  c.lineWidth=1;c.strokeStyle="#e5e7eb";
+  for(let x=Math.ceil(xmin);x<=Math.floor(xmax);x++){c.beginPath();c.moveTo(X(x),Y(ymin));c.lineTo(X(x),Y(ymax));c.stroke()}
+  for(let y=Math.ceil(ymin);y<=Math.floor(ymax);y++){c.beginPath();c.moveTo(X(xmin),Y(y));c.lineTo(X(xmax),Y(y));c.stroke()}
+  c.strokeStyle="#4b5563";c.lineWidth=1.8;
+  if(ymin<=0&&ymax>=0){c.beginPath();c.moveTo(X(xmin),Y(0));c.lineTo(X(xmax),Y(0));c.stroke()}
+  if(xmin<=0&&xmax>=0){c.beginPath();c.moveTo(X(0),Y(ymin));c.lineTo(X(0),Y(ymax));c.stroke()}
+  c.fillStyle="#4b5563";c.font="12px system-ui";
+  if(ymin<=0&&ymax>=0)for(let x=Math.ceil(xmin);x<=Math.floor(xmax);x++)if(x!==0)c.fillText(String(x),X(x)-4,Y(0)+15);
+  if(xmin<=0&&xmax>=0)for(let y=Math.ceil(ymin);y<=Math.floor(ymax);y++)if(y!==0)c.fillText(String(y),X(0)+6,Y(y)+4);
+  c.save();c.beginPath();c.rect(p,p,W-2*p,H-2*p);c.clip();
+  c.strokeStyle="#2563eb";c.lineWidth=3;c.beginPath();c.moveTo(X(xmin),Y(m*xmin+n));c.lineTo(X(xmax),Y(m*xmax+n));c.stroke();
+  c.fillStyle="#b42318";points.forEach(([x,y])=>{c.beginPath();c.arc(X(x),Y(y),5,0,Math.PI*2);c.fill()});
+  c.restore();
+}
+function updateScore(){qs("progress").textContent=`Puntaje: ${solved.filter(Boolean).length} / 12`}
+
+/* 1. Interpretar ecuación */
+function genQ1(){
+  const m=pick([-4,-3,-2,-1,-.5,.5,1,2,3,4]),n=ri(-7,7);
+  return{m,n,behavior:m>0?"creciente":"decreciente"};
+}
+function renderQ1(q){return `<section class="card"><div class="qhead"><h2>1. Interpreta una ecuación</h2><span class="badge">m y n</span></div>
+<p>Para <b>${eqText(q.m,q.n)}</b>, indica la pendiente, el coeficiente de posición y el comportamiento.</p>
+<div class="row3">${input("q1m","Pendiente m")}${input("q1n","Coeficiente de posición n")}<div><label>Comportamiento</label>${radioGroup("q1beh",["Creciente","Decreciente"])}</div></div>
+<button class="check" onclick="checkQ1()">Corregir pregunta 1</button>${feedback("fb1")}</section>`}
+function checkQ1(){
+  const q=test[0],ok=near(parseNum(qs("q1m").value),q.m)&&near(parseNum(qs("q1n").value),q.n)&&checked("q1beh")===(q.behavior==="creciente"?0:1);
+  solved[0]=ok;setFeedback("fb1",ok,`m=${fmt(q.m)}, n=${fmt(q.n)}; la recta es ${q.behavior}.`);updateScore();
+}
+
+/* 2. Sustituir y completar tabla */
+function genQ2(){
+  const m=pick([-3,-2,-1,.5,1,1.5,2,3]),n=ri(-6,6);
+  const xs=shuffle([-4,-3,-2,-1,0,1,2,3,4,5]).slice(0,4).sort((a,b)=>a-b);
+  return{m,n,xs,ys:xs.map(x=>m*x+n)};
+}
+function renderQ2(q){return `<section class="card"><div class="qhead"><h2>2. Evalúa una función y completa una tabla</h2><span class="badge">sustitución</span></div>
+<p>Usa <b>${eqText(q.m,q.n)}</b>.</p><div class="table-wrap"><table><tr><th>x</th>${q.xs.map(x=>`<th>${fmt(x)}</th>`).join("")}</tr>
+<tr><th>y</th>${q.xs.map((x,i)=>`<td><input type="text" id="q2_${i}"></td>`).join("")}</tr></table></div>
+<button class="check" onclick="checkQ2()">Corregir pregunta 2</button>${feedback("fb2")}</section>`}
+function checkQ2(){
+  const q=test[1],ok=q.ys.every((y,i)=>near(parseNum(qs(`q2_${i}`).value),y));
+  solved[1]=ok;setFeedback("fb2",ok,`Valores: ${q.ys.map(fmt).join(", ")}.`);updateScore();
+}
+
+/* 3. Gráfico -> ecuación */
+function genQ3(){
+  const m=pick([-3,-2,-1,1,2,3]),n=ri(-4,4);
+  let opts=[eqText(m,n),eqText(-m,n),eqText(m,-n),eqText(m,n+(n===4?-2:1))];
+  opts=[...new Set(opts)];
+  while(opts.length<4){const s=eqText(pick([-3,-2,-1,1,2,3]),ri(-4,4));if(!opts.includes(s))opts.push(s)}
+  opts=shuffle(opts);
+  return{m,n,opts,answer:opts.indexOf(eqText(m,n))};
+}
+function renderQ3(q){return `<section class="card"><div class="qhead"><h2>3. Lee una recta desde el gráfico</h2><span class="badge">gráfico → ecuación</span></div>
+<div class="grid2"><canvas id="graph3" width="560" height="420"></canvas><div><p>¿Qué ecuación representa la recta?</p>${radioGroup("q3",q.opts)}
+<button class="check" onclick="checkQ3()">Corregir pregunta 3</button>${feedback("fb3")}</div></div></section>`}
+function checkQ3(){
+  const q=test[2],ok=checked("q3")===q.answer;solved[2]=ok;
+  setFeedback("fb3",ok,`La ecuación es ${eqText(q.m,q.n)}. El coeficiente de posición es n=${fmt(q.n)}.`);updateScore();
+}
+
+/* 4. Ecuación -> gráfico */
+function genQ4(){
+  const m=pick([-3,-2,-1,1,2,3]),n=ri(-4,4),correct={m,n};
+  const pool=[{m:-m,n},{m,n:n===0?2:-n},{m:m>0?(m===1?2:m-1):(m===-1?-2:m+1),n:n===4?2:n+1},{m:-m,n:n===0?-2:-n}];
+  const unique=[];
+  for(const o of pool)if((o.m!==m||o.n!==n)&&!unique.some(u=>u.m===o.m&&u.n===o.n))unique.push(o);
+  while(unique.length<3){const o={m:pick([-3,-2,-1,1,2,3]),n:ri(-4,4)};if((o.m!==m||o.n!==n)&&!unique.some(u=>u.m===o.m&&u.n===o.n))unique.push(o)}
+  const opts=shuffle([correct,...unique.slice(0,3)]);
+  return{m,n,opts,answer:opts.findIndex(o=>o.m===m&&o.n===n)};
+}
+function renderQ4(q){return `<section class="card"><div class="qhead"><h2>4. Elige el gráfico correcto</h2><span class="badge">ecuación → gráfico</span></div>
+<p>¿Cuál gráfico corresponde a <b>${eqText(q.m,q.n)}</b>?</p><div class="grid4">${q.opts.map((o,i)=>`<label class="choice mini" style="display:block"><input type="radio" name="q4" value="${i}"> <b>${String.fromCharCode(65+i)}</b><canvas id="graph4_${i}" width="300" height="240"></canvas></label>`).join("")}</div>
+<button class="check" onclick="checkQ4()">Corregir pregunta 4</button>${feedback("fb4")}</section>`}
+function checkQ4(){
+  const q=test[3],ok=checked("q4")===q.answer;solved[3]=ok;
+  setFeedback("fb4",ok,`Busca primero n=${fmt(q.n)} sobre el eje y y luego usa la pendiente m=${fmt(q.m)}.`);updateScore();
+}
+
+/* 5. Dos puntos -> ecuación */
+function genQ5(){
+  for(let tries=0;tries<80;tries++){
+    const m=pick([-2,-1,-.5,.5,1,2]),n=ri(-3,3),x1=ri(-4,-1),x2=ri(1,4),p1=[x1,m*x1+n],p2=[x2,m*x2+n];
+    if(Math.abs(p1[1])<=6&&Math.abs(p2[1])<=6)return{m,n,p1,p2};
+  }
+  return{m:1,n:0,p1:[-2,-2],p2:[3,3]};
+}
+function renderQ5(q){return `<section class="card"><div class="qhead"><h2>5. Encuentra la función a partir de dos puntos</h2><span class="badge">dos puntos</span></div>
+<div class="grid2"><canvas id="graph5" width="560" height="420"></canvas><div>
+<p>La recta pasa por <b>P(${fmt(q.p1[0])}, ${fmt(q.p1[1])})</b> y <b>Q(${fmt(q.p2[0])}, ${fmt(q.p2[1])})</b>.</p>
+<p>Determina <span class="formula">y = mx + n</span>.</p><div class="row">${input("q5m","m")}${input("q5n","n")}</div>
+<button class="check" onclick="checkQ5()">Corregir pregunta 5</button>${feedback("fb5")}</div></div></section>`}
+function checkQ5(){
+  const q=test[4],ok=near(parseNum(qs("q5m").value),q.m)&&near(parseNum(qs("q5n").value),q.n);
+  solved[4]=ok;setFeedback("fb5",ok,`m=${fmt(q.m)} y n=${fmt(q.n)}; por tanto ${eqText(q.m,q.n)}.`);updateScore();
+}
+
+/* 6. Tabla: lineal o no */
+function genQ6(){
+  const isLinear=Math.random()<.65,xs=pick([[0,1,2,3],[-2,0,2,4],[-3,-1,2,5],[1,3,6,10],[0,2,5,9]]);
+  const m=pick([-3,-2,-1,.5,1,2,3]),n=ri(-5,5);let ys=xs.map(x=>m*x+n);
+  if(!isLinear)ys[pick([1,2,3])]+=pick([-3,-2,2,3]);
+  return{isLinear,xs,ys,m,n};
+}
+function renderQ6(q){return `<section class="card"><div class="qhead"><h2>6. Analiza una tabla</h2><span class="badge">variación constante</span></div>
+<p>Decide si los datos corresponden a una función de la forma <span class="formula">y=mx+n</span>.</p>
+<div class="table-wrap"><table><tr><th>x</th>${q.xs.map(x=>`<td>${fmt(x)}</td>`).join("")}</tr><tr><th>y</th>${q.ys.map(y=>`<td>${fmt(y)}</td>`).join("")}</tr></table></div>
+${radioGroup("q6lin",["Sí, es lineal","No, no es lineal"])}
+<div class="row">${input("q6m","Si es lineal: m","deja vacío si no")}${input("q6n","Si es lineal: n","deja vacío si no")}</div>
+<button class="check" onclick="checkQ6()">Corregir pregunta 6</button>${feedback("fb6")}</section>`}
+function checkQ6(){
+  const q=test[5],ans=checked("q6lin");let ok=(q.isLinear&&ans===0)||(!q.isLinear&&ans===1);
+  if(q.isLinear)ok=ok&&near(parseNum(qs("q6m").value),q.m)&&near(parseNum(qs("q6n").value),q.n);
+  solved[5]=ok;setFeedback("fb6",ok,q.isLinear?`Sí. Δy/Δx es constante y ${eqText(q.m,q.n)}.`:"No. La razón Δy/Δx no se mantiene constante.");updateScore();
+}
+
+/* 7. Cero y preimagen */
+function genQ7(){
+  const m=pick([-4,-3,-2,-1,1,2,3,4]),root=ri(-5,5),n=-m*root,targetX=ri(-4,4),target=m*targetX+n;
+  return{m,n,root,target,targetX};
+}
+function renderQ7(q){return `<section class="card"><div class="qhead"><h2>7. Resuelve usando la función</h2><span class="badge">cero y preimagen</span></div>
+<p>Sea <b>${fnText("f",q.m,q.n)}</b>.</p><div class="row">${input("q7root","a) ¿Para qué x se cumple f(x)=0?")}${input("q7target",`b) ¿Para qué x se cumple f(x)=${fmt(q.target)}?`)}</div>
+<button class="check" onclick="checkQ7()">Corregir pregunta 7</button>${feedback("fb7")}</section>`}
+function checkQ7(){
+  const q=test[6],ok=near(parseNum(qs("q7root").value),q.root)&&near(parseNum(qs("q7target").value),q.targetX);
+  solved[6]=ok;setFeedback("fb7",ok,`f(x)=0 en x=${fmt(q.root)} y f(x)=${fmt(q.target)} en x=${fmt(q.targetX)}.`);updateScore();
+}
+
+/* 8. Proporcionalidad directa */
+function genQ8(){
+  const direct=Math.random()<.5,m=pick([.5,1,1.5,2,2.5,3,4]),n=direct?0:nonZero([-5,-4,-3,-2,-1,1,2,3,4,5]),x=ri(2,8);
+  return{direct,m,n,x,y:m*x+n};
+}
+function renderQ8(q){return `<section class="card"><div class="qhead"><h2>8. Proporcionalidad directa</h2><span class="badge">caso n = 0</span></div>
+<p>Considera <b>${eqText(q.m,q.n)}</b>.</p>${radioGroup("q8direct",["Es proporcionalidad directa","No es proporcionalidad directa"])}
+<p>Calcula además y para <b>x=${fmt(q.x)}</b>.</p>${input("q8y","Valor de y")}
+<button class="check" onclick="checkQ8()">Corregir pregunta 8</button>${feedback("fb8")}</section>`}
+function checkQ8(){
+  const q=test[7],ans=checked("q8direct"),ok=((q.direct&&ans===0)||(!q.direct&&ans===1))&&near(parseNum(qs("q8y").value),q.y);
+  solved[7]=ok;setFeedback("fb8",ok,`${q.direct?"Es proporcionalidad directa porque n=0 y pasa por el origen.":`No es proporcionalidad directa porque n=${fmt(q.n)}.`} Para x=${fmt(q.x)}, y=${fmt(q.y)}.`);updateScore();
+}
+
+/* 9. Pendiente + punto / paralelismo */
+function genQ9(){
+  const mode=Math.random()<.55?"pointSlope":"parallel";
+  if(mode==="pointSlope"){
+    const m=pick([-3,-2,-1,-.5,.5,1,2,3]),x0=ri(-4,4),n=ri(-5,5),y0=m*x0+n;
+    return{mode,m,n,x0,y0};
+  }
+  const m=pick([-3,-2,-1,.5,1,2,3]),nRef=ri(-5,5),x0=ri(-4,4),n=ri(-5,5),y0=m*x0+n;
+  return{mode,m,n,nRef,x0,y0};
+}
+function renderQ9(q){
+  const prompt=q.mode==="pointSlope"
+    ?`Una recta tiene pendiente <b>m=${fmt(q.m)}</b> y pasa por el punto <b>P(${fmt(q.x0)}, ${fmt(q.y0)})</b>. Determina su coeficiente de posición n y su ecuación.`
+    :`Busca la recta que es <b>paralela</b> a <b>${eqText(q.m,q.nRef)}</b> y que pasa por <b>P(${fmt(q.x0)}, ${fmt(q.y0)})</b>. Determina m y n.`;
+  return `<section class="card"><div class="qhead"><h2>9. Construye una recta con información parcial</h2><span class="badge">punto, pendiente y paralelismo</span></div>
+<p>${prompt}</p><div class="row">${input("q9m","m")}${input("q9n","n")}</div>
+<button class="check" onclick="checkQ9()">Corregir pregunta 9</button>${feedback("fb9")}</section>`;
+}
+function checkQ9(){
+  const q=test[8],ok=near(parseNum(qs("q9m").value),q.m)&&near(parseNum(qs("q9n").value),q.n);
+  solved[8]=ok;setFeedback("fb9",ok,`La recta es ${eqText(q.m,q.n)}. ${q.mode==="parallel"?"Las rectas paralelas tienen la misma pendiente.":`Al reemplazar el punto en y=mx+n se obtiene n=${fmt(q.n)}.`}`);updateScore();
+}
+
+/* Bancos de problemas */
+const DIRECT_PROBLEM_BUILDERS=[
+  ()=>{const n=pick([3,4,4.5,5,6]),m=pick([1.2,1.5,1.8,2,2.4]),x=pick([5,8,10,12,15]);return{label:"Taxi",m,n,x,ans:m*x+n,unit:"€",text:`Un taxi cobra <b>${fmt(n)} €</b> de bajada de bandera y <b>${fmt(m)} € por kilómetro</b>.`,ask:`Escribe C(x)=mx+n y calcula el precio de ${x} km.`}},
+  ()=>{const n=pick([240,300,360,420,480]),d=pick([12,15,18,20,24]),x=pick([4,6,8,10]);return{label:"Depósito que se vacía",m:-d,n,x,ans:n-d*x,unit:"L",text:`Un depósito contiene inicialmente <b>${n} L</b> y pierde <b>${d} L por minuto</b>.`,ask:`Escribe V(t)=mt+n y calcula cuánto queda después de ${x} min.`}},
+  ()=>{const n=pick([22,26,30,34,38]),d=pick([2,2.5,3,4]),x=pick([2,3,4,5]);return{label:"Vela",m:-d,n,x,ans:n-d*x,unit:"cm",text:`Una vela mide inicialmente <b>${fmt(n)} cm</b> y se consume <b>${fmt(d)} cm por hora</b>.`,ask:`Escribe h(t)=mt+n y calcula su altura después de ${x} h.`}},
+  ()=>{const n=pick([5,6,8,10,12]),m=pick([1.5,2,2.5,3]),x=pick([3,4,5,6]);return{label:"Temperatura",m,n,x,ans:n+m*x,unit:"°C",text:`La temperatura inicial es <b>${fmt(n)} °C</b> y aumenta <b>${fmt(m)} °C por hora</b>.`,ask:`Escribe T(t)=mt+n y calcula la temperatura ${x} h después.`}},
+  ()=>{const n=pick([8,10,12,15]),m=pick([.5,.75,1,1.25]),x=pick([6,8,10,12]);return{label:"Arriendo de bicicleta",m,n,x,ans:n+m*x,unit:"€",text:`El arriendo de una bicicleta cuesta <b>${fmt(n)} €</b> fijos más <b>${fmt(m)} € por hora</b>.`,ask:`Escribe C(h)=mh+n y calcula el precio para ${x} h.`}},
+  ()=>{const n=pick([2,3,4,5]),m=pick([.25,.5,.75,1]),x=pick([10,15,20,25]);return{label:"Estacionamiento",m,n,x,ans:n+m*x,unit:"€",text:`Un estacionamiento cobra <b>${fmt(n)} €</b> de entrada y <b>${fmt(m)} € por hora</b>.`,ask:`Modela C(h)=mh+n y calcula el costo de ${x} h.`}},
+  ()=>{const n=pick([20,30,40,50]),m=pick([5,8,10,12]),x=pick([3,4,5,6]);return{label:"Ahorro",m,n,x,ans:n+m*x,unit:"€",text:`Una persona ya tiene <b>${n} €</b> ahorrados y agrega <b>${m} € por semana</b>.`,ask:`Escribe A(s)=ms+n y calcula cuánto tendrá después de ${x} semanas.`}},
+  ()=>{const n=pick([10,15,20,25]),m=pick([2,3,4,5]),x=pick([4,6,8,10]);return{label:"Tanque que se llena",m,n,x,ans:n+m*x,unit:"L",text:`Un recipiente parte con <b>${n} L</b> y recibe <b>${m} L por minuto</b>.`,ask:`Escribe V(t)=mt+n y calcula el volumen tras ${x} min.`}},
+  ()=>{const n=pick([90,100,110,120]),d=pick([4,5,6,8]),x=pick([5,8,10,12]);return{label:"Altura descendente",m:-d,n,x,ans:n-d*x,unit:"m",text:`Un senderista se encuentra a <b>${n} m</b> sobre una referencia y desciende <b>${d} m por minuto</b>.`,ask:`Modela h(t)=mt+n y calcula la altura tras ${x} min.`}},
+  ()=>{const n=pick([15,20,25,30]),d=pick([1,1.5,2,2.5]),x=pick([4,6,8]);return{label:"Batería",m:-d,n,x,ans:n-d*x,unit:"%",text:`Un dispositivo tiene <b>${n}%</b> adicional sobre un nivel de referencia y pierde <b>${fmt(d)} puntos porcentuales por hora</b>.`,ask:`Usa B(t)=mt+n y calcula B(${x}).`}},
+  ()=>{const n=pick([4,5,6,8]),m=pick([.8,1,1.2,1.5]),x=pick([5,10,15,20]);return{label:"Envío de paquetes",m,n,x,ans:n+m*x,unit:"€",text:`Una empresa cobra <b>${n} €</b> fijos y <b>${fmt(m)} € por kilogramo</b>.`,ask:`Escribe C(x)=mx+n y calcula el precio de un paquete de ${x} kg.`}},
+  ()=>{const n=pick([10,12,15,18]),m=pick([1.5,2,2.5,3]),x=pick([3,5,7,9]);return{label:"Recarga de saldo",m,n,x,ans:n+m*x,unit:"€",text:`Una cuenta comienza con <b>${n} €</b> y recibe una recarga automática de <b>${fmt(m)} € por día</b>.`,ask:`Modela S(d)=md+n y calcula el saldo tras ${x} días.`}}
+];
+
+const INVERSE_PROBLEM_BUILDERS=[
+  ()=>{const n=pick([4,5,6]),m=pick([1.5,2,2.5]),x=pick([6,8,10,12]);const target=n+m*x;return{label:"Taxi: distancia desde precio",m,n,x,target,unit:"km",text:`Un taxi cobra ${fmt(n)} € fijos y ${fmt(m)} € por km. Un viaje costó <b>${fmt(target)} €</b>.`,ask:`Modela C(x)=mx+n y determina cuántos kilómetros se recorrieron.`}},
+  ()=>{const n=pick([300,360,420,480]),d=pick([12,15,18,20]),x=pick([5,8,10,12]);const target=n-d*x;return{label:"Depósito: tiempo hasta volumen",m:-d,n,x,target,unit:"min",text:`Un depósito parte con ${n} L y pierde ${d} L/min.`,ask:`¿Después de cuánto tiempo quedarán <b>${fmt(target)} L</b>?`}},
+  ()=>{const n=pick([28,32,36,40]),d=pick([2,3,4]),x=pick([4,6,8]);const target=n-d*x;return{label:"Vela: tiempo hasta altura",m:-d,n,x,target,unit:"h",text:`Una vela mide ${n} cm y se consume ${d} cm/h.`,ask:`¿Después de cuántas horas medirá <b>${fmt(target)} cm</b>?`}},
+  ()=>{const n=pick([4,6,8,10]),m=pick([1.5,2,2.5]),x=pick([3,4,5,6]);const target=n+m*x;return{label:"Temperatura: hora objetivo",m,n,x,target,unit:"h",text:`La temperatura comienza en ${n} °C y aumenta ${fmt(m)} °C/h.`,ask:`¿Cuántas horas deben pasar para llegar a <b>${fmt(target)} °C</b>?`}},
+  ()=>{const n=pick([20,30,40]),m=pick([5,8,10]),x=pick([4,6,8,10]);const target=n+m*x;return{label:"Ahorro: semanas hasta meta",m,n,x,target,unit:"semanas",text:`Una persona tiene ${n} € y ahorra ${m} € cada semana.`,ask:`¿Cuántas semanas necesita para alcanzar <b>${target} €</b>?`}},
+  ()=>{const n=pick([3,4,5]),m=pick([.5,.75,1]),x=pick([6,8,10,12]);const target=n+m*x;return{label:"Estacionamiento: horas desde presupuesto",m,n,x,target,unit:"h",text:`Un estacionamiento cobra ${n} € de entrada y ${fmt(m)} € por hora.`,ask:`Si se pagaron <b>${fmt(target)} €</b>, ¿cuántas horas estuvo el vehículo?`}},
+  ()=>{const n=pick([20,25,30]),d=pick([1,2,2.5]),x=pick([4,6,8]);const target=n-d*x;return{label:"Batería: tiempo hasta nivel",m:-d,n,x,target,unit:"h",text:`Un nivel de batería se modela desde ${n}% y disminuye ${fmt(d)} puntos porcentuales/h.`,ask:`¿Cuánto tiempo pasa hasta que el modelo marque <b>${fmt(target)}%</b>?`}},
+  ()=>{const n=pick([12,15,18]),m=pick([3,4,5]),x=pick([5,7,9]);const target=n+m*x;return{label:"Tanque: tiempo hasta volumen",m,n,x,target,unit:"min",text:`Un recipiente contiene ${n} L y recibe ${m} L/min.`,ask:`¿Cuántos minutos necesita para llegar a <b>${target} L</b>?`}},
+  ()=>{const n=pick([100,120,140]),d=pick([5,8,10]),x=pick([4,6,8]);const target=n-d*x;return{label:"Descenso: tiempo hasta altura",m:-d,n,x,target,unit:"min",text:`Una persona está a ${n} m y desciende ${d} m/min.`,ask:`¿Cuánto tarda en llegar a <b>${target} m</b>?`}},
+  ()=>{const n=pick([5,6,8]),m=pick([1,1.5,2]),x=pick([5,8,10]);const target=n+m*x;return{label:"Envío: peso desde precio",m,n,x,target,unit:"kg",text:`Un envío cuesta ${n} € fijos más ${fmt(m)} €/kg.`,ask:`Si el total fue <b>${fmt(target)} €</b>, ¿cuántos kg pesaba el paquete?`}}
+];
+
+const COMPARE_BUILDERS=[
+  ()=>({label:"Telefonía",nameA:"Plan A",nameB:"Plan B",m1:.08,n1:12,m2:.15,n2:5,xTest:40,unit:"€",xUnit:"minutos"}),
+  ()=>({label:"Telefonía II",nameA:"Plan A",nameB:"Plan B",m1:.10,n1:10,m2:.20,n2:4,xTest:80,unit:"€",xUnit:"minutos"}),
+  ()=>({label:"Bicicletas",nameA:"Empresa A",nameB:"Empresa B",m1:1,n1:8,m2:1.5,n2:5,xTest:4,unit:"€",xUnit:"horas"}),
+  ()=>({label:"Taxi",nameA:"Taxi A",nameB:"Taxi B",m1:1.6,n1:6,m2:2,n2:4,xTest:8,unit:"€",xUnit:"km"}),
+  ()=>({label:"Gimnasios",nameA:"Gimnasio A",nameB:"Gimnasio B",m1:3,n1:24,m2:5,n2:12,xTest:10,unit:"€",xUnit:"visitas"}),
+  ()=>({label:"Estacionamientos",nameA:"Parking A",nameB:"Parking B",m1:.5,n1:6,m2:.8,n2:3,xTest:4,unit:"€",xUnit:"horas"}),
+  ()=>({label:"Arriendo de herramientas",nameA:"Tienda A",nameB:"Tienda B",m1:4,n1:18,m2:6,n2:10,xTest:8,unit:"€",xUnit:"días"}),
+  ()=>({label:"Impresiones",nameA:"Copistería A",nameB:"Copistería B",m1:.05,n1:8,m2:.09,n2:4,xTest:150,unit:"€",xUnit:"páginas"}),
+  ()=>({label:"Clases deportivas",nameA:"Club A",nameB:"Club B",m1:6,n1:20,m2:8,n2:10,xTest:3,unit:"€",xUnit:"clases"}),
+  ()=>({label:"Envíos",nameA:"Empresa A",nameB:"Empresa B",m1:1.2,n1:8,m2:1.8,n2:5,xTest:10,unit:"€",xUnit:"kg"})
+];
+
+/* 10. Problema directo */
+function genQ10(){return pick(DIRECT_PROBLEM_BUILDERS)()}
+function renderQ10(q){return `<section class="card"><div class="qhead"><h2>10. Problema matemático: construye el modelo</h2><span class="badge problem-badge">problema 1 de 3</span></div>
+<p><b>${q.label}.</b> ${q.text}</p><p>${q.ask}</p>
+<div class="row3">${input("q10m","m")}${input("q10n","n (coeficiente de posición)")}${input("q10ans",`Resultado (${q.unit})`)}</div>
+<button class="check" onclick="checkQ10()">Corregir pregunta 10</button>${feedback("fb10")}</section>`}
+function checkQ10(){
+  const q=test[9],ok=near(parseNum(qs("q10m").value),q.m)&&near(parseNum(qs("q10n").value),q.n)&&near(parseNum(qs("q10ans").value),q.ans);
+  solved[9]=ok;setFeedback("fb10",ok,`Modelo: ${eqText(q.m,q.n)}. Resultado: ${fmt(q.ans)} ${q.unit}.`);updateScore();
+}
+
+/* 11. Problema inverso */
+function genQ11(){return pick(INVERSE_PROBLEM_BUILDERS)()}
+function renderQ11(q){return `<section class="card"><div class="qhead"><h2>11. Problema matemático: encuentra la variable</h2><span class="badge problem-badge">problema 2 de 3</span></div>
+<p><b>${q.label}.</b> ${q.text}</p><p>${q.ask}</p>
+<div class="row">${input("q11m","m")}${input("q11n","n (coeficiente de posición)")}</div>
+${input("q11x",`Valor buscado (${q.unit})`)}
+<button class="check" onclick="checkQ11()">Corregir pregunta 11</button>${feedback("fb11")}</section>`}
+function checkQ11(){
+  const q=test[10],ok=near(parseNum(qs("q11m").value),q.m)&&near(parseNum(qs("q11n").value),q.n)&&near(parseNum(qs("q11x").value),q.x);
+  solved[10]=ok;setFeedback("fb11",ok,`Modelo: ${eqText(q.m,q.n)}. Al igualar la función a ${fmt(q.target)}, se obtiene ${fmt(q.x)} ${q.unit}.`);updateScore();
+}
+
+/* 12. Comparación de modelos */
+function genQ12(){
+  const q=pick(COMPARE_BUILDERS)();
+  const intersection=(q.n2-q.n1)/(q.m1-q.m2);
+  let xTest=q.xTest;
+  if(near(xTest,intersection))xTest+=2;
+  const c1=q.m1*xTest+q.n1,c2=q.m2*xTest+q.n2;
+  return{...q,intersection,xTest,c1,c2,better:c1<c2?"A":"B"};
+}
+function renderQ12(q){
+  return `<section class="card"><div class="qhead"><h2>12. Problema matemático: compara dos modelos</h2><span class="badge problem-badge">problema 3 de 3</span></div>
+<p><b>${q.label}.</b> Se ofrecen dos alternativas:</p>
+<p>${q.nameA}: <b>A(x)=${fmt(q.m1)}x ${signed(q.n1)}</b><br>${q.nameB}: <b>B(x)=${fmt(q.m2)}x ${signed(q.n2)}</b></p>
+<div class="row">${input("q12x",`a) ¿Para cuántos ${q.xUnit} cuestan lo mismo?`)}
+<div><label>b) ¿Qué alternativa conviene para ${fmt(q.xTest)} ${q.xUnit}?</label>${radioGroup("q12better",[q.nameA,q.nameB])}</div></div>
+<button class="check" onclick="checkQ12()">Corregir pregunta 12</button>${feedback("fb12")}</section>`;
+}
+function checkQ12(){
+  const q=test[11],ok=near(parseNum(qs("q12x").value),q.intersection,1e-5)&&checked("q12better")===(q.better==="A"?0:1);
+  solved[11]=ok;setFeedback("fb12",ok,`Se igualan en x=${fmt(q.intersection)}. Para ${fmt(q.xTest)} ${q.xUnit}: A=${fmt(q.c1)} ${q.unit} y B=${fmt(q.c2)} ${q.unit}. Conviene ${q.better==="A"?q.nameA:q.nameB}.`);updateScore();
+}
+
+const GENERATORS=[genQ1,genQ2,genQ3,genQ4,genQ5,genQ6,genQ7,genQ8,genQ9,genQ10,genQ11,genQ12];
+const RENDERERS=[renderQ1,renderQ2,renderQ3,renderQ4,renderQ5,renderQ6,renderQ7,renderQ8,renderQ9,renderQ10,renderQ11,renderQ12];
+
+function generateTest(){
+  test=GENERATORS.map(g=>g());solved.fill(false);
+  qs("questions").innerHTML=test.map((q,i)=>RENDERERS[i](q)).join("");
+  requestAnimationFrame(()=>{
+    drawPlane(qs("graph3"),test[2].m,test[2].n);
+    test[3].opts.forEach((o,i)=>drawPlane(qs(`graph4_${i}`),o.m,o.n,[],{xmin:-5,xmax:5,ymin:-5,ymax:5}));
+    drawPlane(qs("graph5"),test[4].m,test[4].n,[test[4].p1,test[4].p2]);
+  });
+  qs("summary").classList.remove("show");updateScore();window.scrollTo({top:0,behavior:"smooth"});
+}
+function gradeAll(){
+  checkQ1();checkQ2();checkQ3();checkQ4();checkQ5();checkQ6();checkQ7();checkQ8();checkQ9();checkQ10();checkQ11();checkQ12();
+  const n=solved.filter(Boolean).length;
+  qs("summaryText").innerHTML=`Obtuviste <b>${n} de 12</b>. ${n>=11?"Dominio muy bueno.":n>=9?"Buen nivel; revisa los errores antes de la prueba.":n>=6?"Hay varias ideas correctas, pero conviene reforzar los tipos de ejercicio incorrectos.":"Conviene repasar pendiente, coeficiente de posición y construcción de modelos lineales."}`;
+  qs("summary").classList.add("show");qs("summary").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* Banco docente */
+const FAMILY_DESCRIPTIONS=[
+  ["1. Interpretar ecuación","Identificar m, n y crecimiento/decrecimiento a partir de y=mx+n."],
+  ["2. Evaluación y tabla","Sustituir distintos valores de x y completar una tabla."],
+  ["3. Gráfico → ecuación","Leer pendiente y coeficiente de posición desde una recta."],
+  ["4. Ecuación → gráfico","Distinguir el gráfico correcto entre distractores de signo, pendiente y n."],
+  ["5. Dos puntos → ecuación","Calcular m con dos puntos y luego obtener n."],
+  ["6. Tabla lineal/no lineal","Comprobar si Δy/Δx es constante; si lo es, obtener m y n."],
+  ["7. Cero y preimagen","Resolver f(x)=0 y f(x)=k."],
+  ["8. Proporcionalidad directa","Reconocer el caso n=0 y evaluar la función."],
+  ["9. Punto, pendiente y paralelismo","Construir una recta desde un punto y una pendiente o desde una paralela."],
+  ["10. Modelación directa","Traducir un contexto a y=mx+n y calcular una imagen."],
+  ["11. Modelación inversa","Plantear el modelo e igualarlo a un valor para hallar la variable independiente."],
+  ["12. Comparación","Encontrar intersección de dos modelos y decidir cuál conviene."]
+];
+
+function sampleDirect(){return DIRECT_PROBLEM_BUILDERS.map(f=>f())}
+function sampleInverse(){return INVERSE_PROBLEM_BUILDERS.map(f=>f())}
+function sampleCompare(){return COMPARE_BUILDERS.map(f=>f())}
+
+function buildBank(){
+  const fam=FAMILY_DESCRIPTIONS.map(([title,desc])=>`<div class="bank-item"><h3>${title}</h3><p>${desc}</p></div>`).join("");
+  const direct=sampleDirect().map(q=>`<li><b>${q.label}:</b> ${q.text.replace(/<[^>]+>/g,"")} ${q.ask.replace(/<[^>]+>/g,"")}</li>`).join("");
+  const inverse=sampleInverse().map(q=>`<li><b>${q.label}:</b> ${q.text.replace(/<[^>]+>/g,"")} ${q.ask.replace(/<[^>]+>/g,"")}</li>`).join("");
+  const compare=sampleCompare().map(q=>`<li><b>${q.label}:</b> ${q.nameA} y ${q.nameB}, con dos tarifas lineales que deben compararse.</li>`).join("");
+  qs("bankContent").innerHTML=`
+    <h3>Las 12 familias que siempre aparecen</h3><div class="bank-grid">${fam}</div>
+    <h3>Todos los contextos posibles de la pregunta 10</h3><ol class="context-list">${direct}</ol>
+    <h3>Todos los contextos posibles de la pregunta 11</h3><ol class="context-list">${inverse}</ol>
+    <h3>Todos los contextos posibles de la pregunta 12</h3><ol class="context-list">${compare}</ol>
+    <p class="small">El banco enumera todos los <b>tipos y contextos</b>. Dentro de cada uno, los números se seleccionan desde varios conjuntos, por lo que existen muchas versiones numéricas del mismo tipo.</p>`;
+}
+function unlockBank(){
+  const pass=prompt("Clave docente:");
+  if(pass==="zka8"){
+    buildBank();qs("teacherPanel").classList.add("show");qs("teacherPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  }else if(pass!==null){alert("Clave incorrecta.");}
+}
+
+qs("newTest").addEventListener("click",generateTest);
+qs("gradeAll").addEventListener("click",gradeAll);
+qs("printBtn").addEventListener("click",()=>window.print());
+qs("secretBtn").addEventListener("click",unlockBank);
+qs("bankRefresh").addEventListener("click",buildBank);
+qs("closeBank").addEventListener("click",()=>qs("teacherPanel").classList.remove("show"));
+
+generateTest();
+</script>
+</body>
+</html>
